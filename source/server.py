@@ -2,7 +2,6 @@ import socket
 import os
 import time
 import threading
-
 # Cấu hình Server
 SERVER_IP = "127.0.0.1"
 PORT = 12345
@@ -24,8 +23,6 @@ def load_file_list():
         print("⚠ Không tìm thấy input.txt!")
 
     return file_list
-
-
 def watch_file_list():
     """ Quét lại file input.txt mỗi 5 giây để cập nhật danh sách file """
     global file_list

@@ -1,3 +1,0 @@
-File1.zip 1024MB
-File2.zip 50MB
-File3.zip 100MB

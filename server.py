@@ -1,19 +1,55 @@
 import socket
 import os
 import time
+import threading
 
 # Cấu hình Server
 SERVER_IP = "127.0.0.1"
 PORT = 12345
-BUFFER_SIZE = 1024
+BUFFER_SIZE =  1024 
 CHUNK_SIZE = 262144  # 256KB per chunk
 
-# Danh sách file có sẵn trên Server
-file_list = {
-    "File1.zip": 1024*1024,
-    "File2.zip": 1024
-}
+def load_file_list():
+    """ Đọc danh sách file từ input.txt và chuyển đổi kích thước từ MB sang bytes """
+    file_list = {}
+    try:
+        with open("input.txt", "r") as f:
+            for line in f:
+                parts = line.strip().split()
+                if len(parts) == 2 and parts[1].endswith("MB"):
+                    filename = parts[0]
+                    size_mb = int(parts[1].replace("MB", ""))  # Chuyển "10MB" → 10
+                    file_list[filename] = size_mb * 1024 * 1024  # Chuyển MB → bytes
+    except FileNotFoundError:
+        print("⚠ Không tìm thấy input.txt!")
 
+    return file_list
+
+
+def watch_file_list():
+    """ Quét lại file input.txt mỗi 5 giây để cập nhật danh sách file """
+    global file_list
+    last_update = None
+
+    while True:
+        try:
+            # Kiểm tra thời gian chỉnh sửa file
+            current_update = os.path.getmtime("input.txt")
+            if last_update is None or current_update > last_update:
+                file_list = load_file_list()
+                last_update = current_update
+                print("Danh sách file đã được cập nhật:", file_list)
+
+        except FileNotFoundError:
+            print(" Không tìm thấy input.txt!")
+
+        time.sleep(5)  # Chờ 5 giây trước khi quét tiếp
+
+# Gọi hàm quét file trong một luồng riêng biệt
+threading.Thread(target=watch_file_list, daemon=True).start()
+
+# Khi khởi động Server, tải danh sách file lần đầu
+file_list = load_file_list()
 # Tạo UDP socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_socket.bind((SERVER_IP, PORT))
@@ -43,7 +79,9 @@ def send_file_chunk(filename, offset, size, client_addr):
     with open(filename, "rb") as file:
         file.seek(offset)
         chunk = file.read(size)
-
+     # Kiểm tra nếu đây là chunk đầu tiên
+    if offset == 0:
+        print(f"Đã gửi chunk đầu tiên của {filename} tới {client_addr}")
     header = f"FILE_CHUNK:{filename}:{offset}:{size}:"
     packet = header.encode() + chunk
 

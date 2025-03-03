@@ -1,2 +1,2 @@
-Chiều Hòa Thuận
-21127698    
+Ho ten Chiều Hòa Thuận
+mssv 21127698    

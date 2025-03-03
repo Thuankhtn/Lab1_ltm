@@ -1,0 +1,6 @@
+File1.zip 1024MB
+File2.zip 50MB
+File3.zip 100MB
+gns3.zip  893MB
+1GB.bin 1024MB
+100MB.bin 100MB

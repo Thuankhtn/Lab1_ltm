@@ -1,0 +1,2 @@
+1GB.bin 1024MB
+100MB.bin 100MB
